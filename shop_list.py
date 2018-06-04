@@ -17,13 +17,12 @@
 # }
 
 
-def get_shop_list_by_dishes(cook_book, quantity):
+def get_shop_list_by_dishes(cook_book, dishes, person_count):
     shop_list = {}
-    for name, count in quantity.items():
-        for ingredient in cook_book[name]:
+    for dish in dishes:
+        for ingredient in cook_book[dish]:
             new_shop_list_item = dict(ingredient)
-
-            new_shop_list_item['quantity'] *= count
+            new_shop_list_item['quantity'] *= person_count
             if new_shop_list_item['ingredient_name'] not in shop_list:
                 shop_list[new_shop_list_item['ingredient_name']] = new_shop_list_item
             else:
@@ -37,17 +36,15 @@ def print_shop_list(shop_list):
                                 shop_list_item['measure']))
 
 
-def get_cook_book_with_quantity(path):
+def get_cook_book(path):
     cook_book = {}
-    quantity = {}
     with open(path, encoding='utf-8') as f:
         while True:
-            name = f.readline().strip()
+            name = f.readline().strip().lower()
+            f.readline()
             if not name:
                 break
-            count = int(f.readline().strip())
             cook_book[name] = []
-            quantity[name] = count
             line = f.readline().strip()
             while line:
                 ingredients = line.split(" | ")
@@ -57,12 +54,14 @@ def get_cook_book_with_quantity(path):
                 cook_book[name].append(ingredients_dict)
                 line = f.readline().strip()
 
-    return cook_book, quantity
+    return cook_book
 
 
 def create_shop_list():
-    cook_book, quantity = get_cook_book_with_quantity("cook_book.txt")
-    shop_list = get_shop_list_by_dishes(cook_book, quantity)
+    person_count = int(input('Введите количество человек: '))
+    dishes = input('Введите блюда в расчете на одного человека (через запятую): ').lower().split(', ')
+    cook_book = get_cook_book("cook_book.txt")
+    shop_list = get_shop_list_by_dishes(cook_book, dishes, person_count)
     print_shop_list(shop_list)
 
 
